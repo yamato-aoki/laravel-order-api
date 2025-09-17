@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # PHP-FPM + Laravel アプリケーション本体
+  app:
+    build:
+      context: ./docker/php  # Dockerfile のある場所
+    container_name: laravel-app
+    volumes:
+      - ./:/var/www/html  # Laravel のソースコードをマウント
+    working_dir: /var/www/html
+    ports:
+      - 9000:9000  # PHP-FPMポート（nginxが内部で使う）
+    networks:
+      - laravel-net
+    depends_on:
+      mysql:
+        condition: service_healthy  # MySQL が ready になってから起動
+
+  # Webサーバー（Nginx）
+  web:
+    image: nginx:alpine  # 軽量なNginxイメージ
+    container_name: nginx
+    ports:
+      - "80:80"  # ホストの80番ポートでアクセス可能（http://localhost）
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app  # Laravelアプリが先に起動していることを前提にする
+    networks:
+      - laravel-net
+
+  # データベース（MySQL）
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    ports:
+      - 3308:3306  # ホスト:コンテナ → ローカルで3308ポートに接続すればOK
+    environment:
+      MYSQL_DATABASE: laravel_order_api
+      MYSQL_ROOT_PASSWORD: root
+    command: --require_secure_transport=OFF --ssl=0  # SSL不要（開発用設定）
+    volumes:
+      - dbdata:/var/lib/mysql  # データ永続化（ボリュームを使う）
+    networks:
+      - laravel-net
+    healthcheck:  # MySQL の起動完了を確認するヘルスチェック
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+# データ永続化ボリューム定義
+volumes:
+  dbdata:
+
+# 全コンテナが属する仮想ネットワーク（bridgeモード）
+networks:
+  laravel-net:
+    driver: bridge
