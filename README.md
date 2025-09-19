@@ -111,7 +111,7 @@ docker exec -it laravel-app php artisan migrate:fresh --seed
 
 ## Postman でのAPI確認
 
-- Postmanコレクション（`docs/Order-Management-API.postman_collection.json`）を同梱
+- Postmanコレクション（`docs\laravel-order-api-postman-collection.json`）を同梱
 - 主要API（ログイン／注文／キャンセル／出荷）を実行可能
 - ベースURLやトークンは環境変数（`{{base_url}}`, `{{token}}`）で自動管理
 
