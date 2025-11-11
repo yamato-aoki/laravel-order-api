@@ -140,6 +140,6 @@ docker exec -it laravel-app php artisan test
 ## 作者情報
 
 - 名前：青木 大和（Yamato Aoki）  
-- スタック：PHP/Laravel・MySQL・Docker・GCP・ETL・データ基盤構築  
+- スタック：PHP/Laravel・MySQL・Docker・GCP・AWS・ETL・データ基盤構築  
 - GitHub: [https://github.com/yamato-aoki](https://github.com/yamato-aoki)  
 - 今後も、より実務的な改善を継続予定
